@@ -172,6 +172,84 @@ pip install claude-monitor
 claude-monitor  # or cmonitor, ccmonitor for short
 ```
 
+#### Nix Flakes
+
+```bash
+# Run directly without installing
+nix run github:Maciek-roboblog/Claude-Code-Usage-Monitor
+
+# Run with arguments
+nix run github:Maciek-roboblog/Claude-Code-Usage-Monitor -- --plan pro --view realtime
+
+# Install to user profile
+nix profile install github:Maciek-roboblog/Claude-Code-Usage-Monitor
+```
+
+<details>
+<summary>Install to NixOS/Home Manager Configuration (recommended)</summary>
+
+**1. Add claude-monitor to your flake inputs:**
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    claude-monitor = {
+      url = "github:Maciek-roboblog/Claude-Code-Usage-Monitor";
+      inputs.nixpkgs.follows = "nixpkgs"; # reduce closure size
+    };
+  };
+
+  outputs = { nixpkgs, ... } @ inputs: {
+    # Your configurations here
+  };
+}
+```
+
+**2. Configure your system:**
+
+**NixOS:**
+```nix
+# flake.nix (inside outputs)
+nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+  modules = [ ./configuration.nix ];
+
+  # Add `inputs` to `specialArgs` if you haven't already
+  specialArgs = { inherit inputs; };
+};
+```
+
+```nix
+# configuration.nix
+{ inputs, pkgs, ... }: {
+  environment.systemPackages = [
+    inputs.claude-monitor.packages.${pkgs.system}.default
+  ];
+}
+```
+
+**Home Manager:**
+```nix
+# flake.nix (inside outputs)
+homeConfigurations.your-username = home-manager.lib.homeManagerConfiguration {
+  modules = [ ./home.nix ];
+
+  # Add `inputs` to `extraSpecialArgs` if you haven't already
+  extraSpecialArgs = { inherit inputs; };
+};
+```
+
+```nix
+# home.nix
+{ inputs, pkgs, ... }: {
+  home.packages = [
+    inputs.claude-monitor.packages.${pkgs.system}.default
+  ];
+}
+```
+
+After rebuilding, `claude-monitor` and aliases will be available system-wide.
+</details>
+
 
 ## 📖 Usage
 
