@@ -100,6 +100,9 @@
         # Skip tests during build (they can be run separately)
         doCheck = false;
 
+        # Ensure module imports after build
+        pythonImportsCheck = ["claude_monitor"];
+
         # Ensure the package is properly installed
         postInstall = ''
           # Verify the main entry points are available
